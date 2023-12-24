@@ -7,8 +7,7 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
+	"database/sql"
 )
 
 const createAccount = `-- name: CreateAccount :one
@@ -30,21 +29,21 @@ INSERT INTO accounts (
 `
 
 type CreateAccountParams struct {
-	Username          string             `json:"username"`
-	Email             string             `json:"email"`
-	ProfilePictureUrl pgtype.Text        `json:"profile_picture_url"`
-	Bio               pgtype.Text        `json:"bio"`
-	LastLogin         pgtype.Timestamptz `json:"last_login"`
-	IsAdmin           bool               `json:"is_admin"`
-	IsActive          bool               `json:"is_active"`
-	LastDeactivatedAt pgtype.Timestamptz `json:"last_deactivated_at"`
-	NFollowers        pgtype.Int4        `json:"n_followers"`
-	NFollowing        pgtype.Int4        `json:"n_following"`
-	NTweets           pgtype.Int4        `json:"n_tweets"`
+	Username          string         `json:"username"`
+	Email             string         `json:"email"`
+	ProfilePictureUrl sql.NullString `json:"profile_picture_url"`
+	Bio               sql.NullString `json:"bio"`
+	LastLogin         sql.NullTime   `json:"last_login"`
+	IsAdmin           bool           `json:"is_admin"`
+	IsActive          bool           `json:"is_active"`
+	LastDeactivatedAt sql.NullTime   `json:"last_deactivated_at"`
+	NFollowers        int32          `json:"n_followers"`
+	NFollowing        int32          `json:"n_following"`
+	NTweets           int32          `json:"n_tweets"`
 }
 
 func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) (Account, error) {
-	row := q.db.QueryRow(ctx, createAccount,
+	row := q.db.QueryRowContext(ctx, createAccount,
 		arg.Username,
 		arg.Email,
 		arg.ProfilePictureUrl,
@@ -81,7 +80,7 @@ DELETE FROM accounts WHERE email = $1
 `
 
 func (q *Queries) DeleteAccountByEmail(ctx context.Context, email string) error {
-	_, err := q.db.Exec(ctx, deleteAccountByEmail, email)
+	_, err := q.db.ExecContext(ctx, deleteAccountByEmail, email)
 	return err
 }
 
@@ -90,7 +89,7 @@ DELETE FROM accounts WHERE id = $1
 `
 
 func (q *Queries) DeleteAccountByID(ctx context.Context, id int64) error {
-	_, err := q.db.Exec(ctx, deleteAccountByID, id)
+	_, err := q.db.ExecContext(ctx, deleteAccountByID, id)
 	return err
 }
 
@@ -99,7 +98,7 @@ DELETE FROM accounts WHERE username = $1
 `
 
 func (q *Queries) DeleteAccountByUsername(ctx context.Context, username string) error {
-	_, err := q.db.Exec(ctx, deleteAccountByUsername, username)
+	_, err := q.db.ExecContext(ctx, deleteAccountByUsername, username)
 	return err
 }
 
@@ -108,7 +107,7 @@ SELECT id, username, email, profile_picture_url, bio, last_login, created_at, is
 `
 
 func (q *Queries) GetAccountByEmail(ctx context.Context, email string) (Account, error) {
-	row := q.db.QueryRow(ctx, getAccountByEmail, email)
+	row := q.db.QueryRowContext(ctx, getAccountByEmail, email)
 	var i Account
 	err := row.Scan(
 		&i.ID,
@@ -133,7 +132,7 @@ SELECT id, username, email, profile_picture_url, bio, last_login, created_at, is
 `
 
 func (q *Queries) GetAccountByID(ctx context.Context, id int64) (Account, error) {
-	row := q.db.QueryRow(ctx, getAccountByID, id)
+	row := q.db.QueryRowContext(ctx, getAccountByID, id)
 	var i Account
 	err := row.Scan(
 		&i.ID,
@@ -158,7 +157,7 @@ SELECT id, username, email, profile_picture_url, bio, last_login, created_at, is
 `
 
 func (q *Queries) GetAccountByUsername(ctx context.Context, username string) (Account, error) {
-	row := q.db.QueryRow(ctx, getAccountByUsername, username)
+	row := q.db.QueryRowContext(ctx, getAccountByUsername, username)
 	var i Account
 	err := row.Scan(
 		&i.ID,
@@ -188,7 +187,7 @@ type GetAccountByUsernameOrEmailParams struct {
 }
 
 func (q *Queries) GetAccountByUsernameOrEmail(ctx context.Context, arg GetAccountByUsernameOrEmailParams) (Account, error) {
-	row := q.db.QueryRow(ctx, getAccountByUsernameOrEmail, arg.Username, arg.Email)
+	row := q.db.QueryRowContext(ctx, getAccountByUsernameOrEmail, arg.Username, arg.Email)
 	var i Account
 	err := row.Scan(
 		&i.ID,
@@ -218,7 +217,7 @@ type ListAccountsParams struct {
 }
 
 func (q *Queries) ListAccounts(ctx context.Context, arg ListAccountsParams) ([]Account, error) {
-	rows, err := q.db.Query(ctx, listAccounts, arg.Limit, arg.Offset)
+	rows, err := q.db.QueryContext(ctx, listAccounts, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -245,6 +244,9 @@ func (q *Queries) ListAccounts(ctx context.Context, arg ListAccountsParams) ([]A
 		}
 		items = append(items, i)
 	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -268,21 +270,21 @@ RETURNING id, username, email, profile_picture_url, bio, last_login, created_at,
 `
 
 type UpdateAccountByEmailParams struct {
-	Email             string             `json:"email"`
-	Username          string             `json:"username"`
-	ProfilePictureUrl pgtype.Text        `json:"profile_picture_url"`
-	Bio               pgtype.Text        `json:"bio"`
-	LastLogin         pgtype.Timestamptz `json:"last_login"`
-	IsAdmin           bool               `json:"is_admin"`
-	IsActive          bool               `json:"is_active"`
-	LastDeactivatedAt pgtype.Timestamptz `json:"last_deactivated_at"`
-	NFollowers        pgtype.Int4        `json:"n_followers"`
-	NFollowing        pgtype.Int4        `json:"n_following"`
-	NTweets           pgtype.Int4        `json:"n_tweets"`
+	Email             string         `json:"email"`
+	Username          string         `json:"username"`
+	ProfilePictureUrl sql.NullString `json:"profile_picture_url"`
+	Bio               sql.NullString `json:"bio"`
+	LastLogin         sql.NullTime   `json:"last_login"`
+	IsAdmin           bool           `json:"is_admin"`
+	IsActive          bool           `json:"is_active"`
+	LastDeactivatedAt sql.NullTime   `json:"last_deactivated_at"`
+	NFollowers        int32          `json:"n_followers"`
+	NFollowing        int32          `json:"n_following"`
+	NTweets           int32          `json:"n_tweets"`
 }
 
 func (q *Queries) UpdateAccountByEmail(ctx context.Context, arg UpdateAccountByEmailParams) (Account, error) {
-	row := q.db.QueryRow(ctx, updateAccountByEmail,
+	row := q.db.QueryRowContext(ctx, updateAccountByEmail,
 		arg.Email,
 		arg.Username,
 		arg.ProfilePictureUrl,
@@ -332,22 +334,22 @@ RETURNING id, username, email, profile_picture_url, bio, last_login, created_at,
 `
 
 type UpdateAccountByIDParams struct {
-	ID                int64              `json:"id"`
-	Username          string             `json:"username"`
-	Email             string             `json:"email"`
-	ProfilePictureUrl pgtype.Text        `json:"profile_picture_url"`
-	Bio               pgtype.Text        `json:"bio"`
-	LastLogin         pgtype.Timestamptz `json:"last_login"`
-	IsAdmin           bool               `json:"is_admin"`
-	IsActive          bool               `json:"is_active"`
-	LastDeactivatedAt pgtype.Timestamptz `json:"last_deactivated_at"`
-	NFollowers        pgtype.Int4        `json:"n_followers"`
-	NFollowing        pgtype.Int4        `json:"n_following"`
-	NTweets           pgtype.Int4        `json:"n_tweets"`
+	ID                int64          `json:"id"`
+	Username          string         `json:"username"`
+	Email             string         `json:"email"`
+	ProfilePictureUrl sql.NullString `json:"profile_picture_url"`
+	Bio               sql.NullString `json:"bio"`
+	LastLogin         sql.NullTime   `json:"last_login"`
+	IsAdmin           bool           `json:"is_admin"`
+	IsActive          bool           `json:"is_active"`
+	LastDeactivatedAt sql.NullTime   `json:"last_deactivated_at"`
+	NFollowers        int32          `json:"n_followers"`
+	NFollowing        int32          `json:"n_following"`
+	NTweets           int32          `json:"n_tweets"`
 }
 
 func (q *Queries) UpdateAccountByID(ctx context.Context, arg UpdateAccountByIDParams) (Account, error) {
-	row := q.db.QueryRow(ctx, updateAccountByID,
+	row := q.db.QueryRowContext(ctx, updateAccountByID,
 		arg.ID,
 		arg.Username,
 		arg.Email,
@@ -397,21 +399,21 @@ RETURNING id, username, email, profile_picture_url, bio, last_login, created_at,
 `
 
 type UpdateAccountByUsernameParams struct {
-	Username          string             `json:"username"`
-	Email             string             `json:"email"`
-	ProfilePictureUrl pgtype.Text        `json:"profile_picture_url"`
-	Bio               pgtype.Text        `json:"bio"`
-	LastLogin         pgtype.Timestamptz `json:"last_login"`
-	IsAdmin           bool               `json:"is_admin"`
-	IsActive          bool               `json:"is_active"`
-	LastDeactivatedAt pgtype.Timestamptz `json:"last_deactivated_at"`
-	NFollowers        pgtype.Int4        `json:"n_followers"`
-	NFollowing        pgtype.Int4        `json:"n_following"`
-	NTweets           pgtype.Int4        `json:"n_tweets"`
+	Username          string         `json:"username"`
+	Email             string         `json:"email"`
+	ProfilePictureUrl sql.NullString `json:"profile_picture_url"`
+	Bio               sql.NullString `json:"bio"`
+	LastLogin         sql.NullTime   `json:"last_login"`
+	IsAdmin           bool           `json:"is_admin"`
+	IsActive          bool           `json:"is_active"`
+	LastDeactivatedAt sql.NullTime   `json:"last_deactivated_at"`
+	NFollowers        int32          `json:"n_followers"`
+	NFollowing        int32          `json:"n_following"`
+	NTweets           int32          `json:"n_tweets"`
 }
 
 func (q *Queries) UpdateAccountByUsername(ctx context.Context, arg UpdateAccountByUsernameParams) (Account, error) {
-	row := q.db.QueryRow(ctx, updateAccountByUsername,
+	row := q.db.QueryRowContext(ctx, updateAccountByUsername,
 		arg.Username,
 		arg.Email,
 		arg.ProfilePictureUrl,

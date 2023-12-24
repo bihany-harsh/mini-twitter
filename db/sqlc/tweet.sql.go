@@ -7,8 +7,7 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
+	"database/sql"
 )
 
 const createTweet = `-- name: CreateTweet :one
@@ -20,17 +19,17 @@ INSERT INTO tweets (
 `
 
 type CreateTweetParams struct {
-	UserID    int64              `json:"user_id"`
-	Content   string             `json:"content"`
-	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
-	RetweetID pgtype.Int8        `json:"retweet_id"`
-	NLikes    pgtype.Int4        `json:"n_likes"`
-	NRetweets pgtype.Int4        `json:"n_retweets"`
-	NReply    pgtype.Int4        `json:"n_reply"`
+	UserID    int64         `json:"user_id"`
+	Content   string        `json:"content"`
+	UpdatedAt sql.NullTime  `json:"updated_at"`
+	RetweetID sql.NullInt64 `json:"retweet_id"`
+	NLikes    int32         `json:"n_likes"`
+	NRetweets int32         `json:"n_retweets"`
+	NReply    int32         `json:"n_reply"`
 }
 
 func (q *Queries) CreateTweet(ctx context.Context, arg CreateTweetParams) (Tweet, error) {
-	row := q.db.QueryRow(ctx, createTweet,
+	row := q.db.QueryRowContext(ctx, createTweet,
 		arg.UserID,
 		arg.Content,
 		arg.UpdatedAt,
@@ -60,7 +59,7 @@ DELETE FROM tweets WHERE id = $1
 `
 
 func (q *Queries) DeleteTweetByID(ctx context.Context, id int64) error {
-	_, err := q.db.Exec(ctx, deleteTweetByID, id)
+	_, err := q.db.ExecContext(ctx, deleteTweetByID, id)
 	return err
 }
 
@@ -69,7 +68,7 @@ DELETE FROM tweets WHERE user_id = $1
 `
 
 func (q *Queries) DeleteTweetsByUserID(ctx context.Context, userID int64) error {
-	_, err := q.db.Exec(ctx, deleteTweetsByUserID, userID)
+	_, err := q.db.ExecContext(ctx, deleteTweetsByUserID, userID)
 	return err
 }
 
@@ -78,7 +77,7 @@ SELECT id, user_id, content, created_at, updated_at, is_deleted, retweet_id, n_l
 `
 
 func (q *Queries) GetTweetByID(ctx context.Context, id int64) (Tweet, error) {
-	row := q.db.QueryRow(ctx, getTweetByID, id)
+	row := q.db.QueryRowContext(ctx, getTweetByID, id)
 	var i Tweet
 	err := row.Scan(
 		&i.ID,
@@ -95,18 +94,18 @@ func (q *Queries) GetTweetByID(ctx context.Context, id int64) (Tweet, error) {
 	return i, err
 }
 
-const getTweetByUserID = `-- name: GetTweetByUserID :many
+const getTweetsByUserID = `-- name: GetTweetsByUserID :many
 SELECT id, user_id, content, created_at, updated_at, is_deleted, retweet_id, n_likes, n_retweets, n_reply FROM tweets WHERE user_id = $1 ORDER BY id LIMIT $2 OFFSET $3
 `
 
-type GetTweetByUserIDParams struct {
+type GetTweetsByUserIDParams struct {
 	UserID int64 `json:"user_id"`
 	Limit  int32 `json:"limit"`
 	Offset int32 `json:"offset"`
 }
 
-func (q *Queries) GetTweetByUserID(ctx context.Context, arg GetTweetByUserIDParams) ([]Tweet, error) {
-	rows, err := q.db.Query(ctx, getTweetByUserID, arg.UserID, arg.Limit, arg.Offset)
+func (q *Queries) GetTweetsByUserID(ctx context.Context, arg GetTweetsByUserIDParams) ([]Tweet, error) {
+	rows, err := q.db.QueryContext(ctx, getTweetsByUserID, arg.UserID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -129,6 +128,9 @@ func (q *Queries) GetTweetByUserID(ctx context.Context, arg GetTweetByUserIDPara
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -146,7 +148,7 @@ type ListTweetsParams struct {
 }
 
 func (q *Queries) ListTweets(ctx context.Context, arg ListTweetsParams) ([]Tweet, error) {
-	rows, err := q.db.Query(ctx, listTweets, arg.Limit, arg.Offset)
+	rows, err := q.db.QueryContext(ctx, listTweets, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -169,6 +171,9 @@ func (q *Queries) ListTweets(ctx context.Context, arg ListTweetsParams) ([]Tweet
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -189,17 +194,17 @@ RETURNING id, user_id, content, created_at, updated_at, is_deleted, retweet_id, 
 `
 
 type UpdateTweetByIDParams struct {
-	ID        int64              `json:"id"`
-	Content   string             `json:"content"`
-	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
-	RetweetID pgtype.Int8        `json:"retweet_id"`
-	NLikes    pgtype.Int4        `json:"n_likes"`
-	NRetweets pgtype.Int4        `json:"n_retweets"`
-	NReply    pgtype.Int4        `json:"n_reply"`
+	ID        int64         `json:"id"`
+	Content   string        `json:"content"`
+	UpdatedAt sql.NullTime  `json:"updated_at"`
+	RetweetID sql.NullInt64 `json:"retweet_id"`
+	NLikes    int32         `json:"n_likes"`
+	NRetweets int32         `json:"n_retweets"`
+	NReply    int32         `json:"n_reply"`
 }
 
 func (q *Queries) UpdateTweetByID(ctx context.Context, arg UpdateTweetByIDParams) (Tweet, error) {
-	row := q.db.QueryRow(ctx, updateTweetByID,
+	row := q.db.QueryRowContext(ctx, updateTweetByID,
 		arg.ID,
 		arg.Content,
 		arg.UpdatedAt,

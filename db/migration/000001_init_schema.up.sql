@@ -9,9 +9,9 @@ CREATE TABLE "accounts" (
   "is_admin" boolean NOT NULL DEFAULT false,
   "is_active" boolean NOT NULL DEFAULT true,
   "last_deactivated_at" timestamptz,
-  "n_followers" int DEFAULT 0,
-  "n_following" int DEFAULT 0,
-  "n_tweets" int DEFAULT 0
+  "n_followers" int NOT NULL DEFAULT 0,
+  "n_following" int NOT NULL DEFAULT 0,
+  "n_tweets" int NOT NULL DEFAULT 0
 );
 
 CREATE TABLE "tweets" (
@@ -22,9 +22,9 @@ CREATE TABLE "tweets" (
   "updated_at" timestamptz,
   "is_deleted" boolean NOT NULL DEFAULT false,
   "retweet_id" bigint,
-  "n_likes" int DEFAULT 0,
-  "n_retweets" int DEFAULT 0,
-  "n_reply" int DEFAULT 0
+  "n_likes" int NOT NULL DEFAULT 0,
+  "n_retweets" int NOT NULL DEFAULT 0,
+  "n_reply" int NOT NULL DEFAULT 0
 );
 
 CREATE TABLE "follows" (

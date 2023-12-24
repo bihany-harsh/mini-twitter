@@ -5,61 +5,62 @@
 package db
 
 import (
-	"github.com/jackc/pgx/v5/pgtype"
+	"database/sql"
+	"time"
 )
 
 type Account struct {
-	ID                int64              `json:"id"`
-	Username          string             `json:"username"`
-	Email             string             `json:"email"`
-	ProfilePictureUrl pgtype.Text        `json:"profile_picture_url"`
-	Bio               pgtype.Text        `json:"bio"`
-	LastLogin         pgtype.Timestamptz `json:"last_login"`
-	CreatedAt         pgtype.Timestamptz `json:"created_at"`
-	IsAdmin           bool               `json:"is_admin"`
-	IsActive          bool               `json:"is_active"`
-	LastDeactivatedAt pgtype.Timestamptz `json:"last_deactivated_at"`
-	NFollowers        pgtype.Int4        `json:"n_followers"`
-	NFollowing        pgtype.Int4        `json:"n_following"`
-	NTweets           pgtype.Int4        `json:"n_tweets"`
+	ID                int64          `json:"id"`
+	Username          string         `json:"username"`
+	Email             string         `json:"email"`
+	ProfilePictureUrl sql.NullString `json:"profile_picture_url"`
+	Bio               sql.NullString `json:"bio"`
+	LastLogin         sql.NullTime   `json:"last_login"`
+	CreatedAt         time.Time      `json:"created_at"`
+	IsAdmin           bool           `json:"is_admin"`
+	IsActive          bool           `json:"is_active"`
+	LastDeactivatedAt sql.NullTime   `json:"last_deactivated_at"`
+	NFollowers        int32          `json:"n_followers"`
+	NFollowing        int32          `json:"n_following"`
+	NTweets           int32          `json:"n_tweets"`
 }
 
 type Follow struct {
-	FollowerID  int64              `json:"follower_id"`
-	FollowingID int64              `json:"following_id"`
-	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	FollowerID  int64     `json:"follower_id"`
+	FollowingID int64     `json:"following_id"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 type Like struct {
-	UserID    int64              `json:"user_id"`
-	TweetID   int64              `json:"tweet_id"`
-	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UserID    int64     `json:"user_id"`
+	TweetID   int64     `json:"tweet_id"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type Reply struct {
-	ID        int64              `json:"id"`
-	TweetID   int64              `json:"tweet_id"`
-	UserID    int64              `json:"user_id"`
-	Content   string             `json:"content"`
-	CreatedAt pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	ID        int64        `json:"id"`
+	TweetID   int64        `json:"tweet_id"`
+	UserID    int64        `json:"user_id"`
+	Content   string       `json:"content"`
+	CreatedAt time.Time    `json:"created_at"`
+	UpdatedAt sql.NullTime `json:"updated_at"`
 }
 
 type Retweet struct {
-	UserID    int64              `json:"user_id"`
-	TweetID   int64              `json:"tweet_id"`
-	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UserID    int64     `json:"user_id"`
+	TweetID   int64     `json:"tweet_id"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type Tweet struct {
-	ID        int64              `json:"id"`
-	UserID    int64              `json:"user_id"`
-	Content   string             `json:"content"`
-	CreatedAt pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
-	IsDeleted bool               `json:"is_deleted"`
-	RetweetID pgtype.Int8        `json:"retweet_id"`
-	NLikes    pgtype.Int4        `json:"n_likes"`
-	NRetweets pgtype.Int4        `json:"n_retweets"`
-	NReply    pgtype.Int4        `json:"n_reply"`
+	ID        int64         `json:"id"`
+	UserID    int64         `json:"user_id"`
+	Content   string        `json:"content"`
+	CreatedAt time.Time     `json:"created_at"`
+	UpdatedAt sql.NullTime  `json:"updated_at"`
+	IsDeleted bool          `json:"is_deleted"`
+	RetweetID sql.NullInt64 `json:"retweet_id"`
+	NLikes    int32         `json:"n_likes"`
+	NRetweets int32         `json:"n_retweets"`
+	NReply    int32         `json:"n_reply"`
 }

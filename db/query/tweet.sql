@@ -8,7 +8,7 @@ INSERT INTO tweets (
 -- name: GetTweetByID :one
 SELECT * FROM tweets WHERE id = $1;
 
--- name: GetTweetByUserID :many
+-- name: GetTweetsByUserID :many
 SELECT * FROM tweets WHERE user_id = $1 ORDER BY id LIMIT $2 OFFSET $3;
 
 -- name: ListTweets :many

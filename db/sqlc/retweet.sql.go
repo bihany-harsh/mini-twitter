@@ -23,7 +23,7 @@ type CreateRetweetParams struct {
 }
 
 func (q *Queries) CreateRetweet(ctx context.Context, arg CreateRetweetParams) (Retweet, error) {
-	row := q.db.QueryRow(ctx, createRetweet, arg.UserID, arg.TweetID)
+	row := q.db.QueryRowContext(ctx, createRetweet, arg.UserID, arg.TweetID)
 	var i Retweet
 	err := row.Scan(&i.UserID, &i.TweetID, &i.CreatedAt)
 	return i, err
@@ -39,7 +39,7 @@ type DeleteRetweetParams struct {
 }
 
 func (q *Queries) DeleteRetweet(ctx context.Context, arg DeleteRetweetParams) error {
-	_, err := q.db.Exec(ctx, deleteRetweet, arg.UserID, arg.TweetID)
+	_, err := q.db.ExecContext(ctx, deleteRetweet, arg.UserID, arg.TweetID)
 	return err
 }
 
@@ -54,7 +54,7 @@ type GetRetweetsByTweetIDParams struct {
 }
 
 func (q *Queries) GetRetweetsByTweetID(ctx context.Context, arg GetRetweetsByTweetIDParams) ([]Retweet, error) {
-	rows, err := q.db.Query(ctx, getRetweetsByTweetID, arg.TweetID, arg.Limit, arg.Offset)
+	rows, err := q.db.QueryContext(ctx, getRetweetsByTweetID, arg.TweetID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -66,6 +66,9 @@ func (q *Queries) GetRetweetsByTweetID(ctx context.Context, arg GetRetweetsByTwe
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -84,7 +87,7 @@ type GetRetweetsByUserIDParams struct {
 }
 
 func (q *Queries) GetRetweetsByUserID(ctx context.Context, arg GetRetweetsByUserIDParams) ([]Retweet, error) {
-	rows, err := q.db.Query(ctx, getRetweetsByUserID, arg.UserID, arg.Limit, arg.Offset)
+	rows, err := q.db.QueryContext(ctx, getRetweetsByUserID, arg.UserID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -96,6 +99,9 @@ func (q *Queries) GetRetweetsByUserID(ctx context.Context, arg GetRetweetsByUser
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

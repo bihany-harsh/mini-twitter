@@ -23,7 +23,7 @@ type CreateLikeParams struct {
 }
 
 func (q *Queries) CreateLike(ctx context.Context, arg CreateLikeParams) (Like, error) {
-	row := q.db.QueryRow(ctx, createLike, arg.UserID, arg.TweetID)
+	row := q.db.QueryRowContext(ctx, createLike, arg.UserID, arg.TweetID)
 	var i Like
 	err := row.Scan(&i.UserID, &i.TweetID, &i.CreatedAt)
 	return i, err
@@ -39,7 +39,7 @@ type DeleteLikeParams struct {
 }
 
 func (q *Queries) DeleteLike(ctx context.Context, arg DeleteLikeParams) error {
-	_, err := q.db.Exec(ctx, deleteLike, arg.UserID, arg.TweetID)
+	_, err := q.db.ExecContext(ctx, deleteLike, arg.UserID, arg.TweetID)
 	return err
 }
 
@@ -54,7 +54,7 @@ type GetLikesByTweetIDParams struct {
 }
 
 func (q *Queries) GetLikesByTweetID(ctx context.Context, arg GetLikesByTweetIDParams) ([]Like, error) {
-	rows, err := q.db.Query(ctx, getLikesByTweetID, arg.TweetID, arg.Limit, arg.Offset)
+	rows, err := q.db.QueryContext(ctx, getLikesByTweetID, arg.TweetID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -66,6 +66,9 @@ func (q *Queries) GetLikesByTweetID(ctx context.Context, arg GetLikesByTweetIDPa
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -84,7 +87,7 @@ type GetLikesByUserIDParams struct {
 }
 
 func (q *Queries) GetLikesByUserID(ctx context.Context, arg GetLikesByUserIDParams) ([]Like, error) {
-	rows, err := q.db.Query(ctx, getLikesByUserID, arg.UserID, arg.Limit, arg.Offset)
+	rows, err := q.db.QueryContext(ctx, getLikesByUserID, arg.UserID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -96,6 +99,9 @@ func (q *Queries) GetLikesByUserID(ctx context.Context, arg GetLikesByUserIDPara
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

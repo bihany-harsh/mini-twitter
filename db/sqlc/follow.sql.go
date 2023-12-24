@@ -23,7 +23,7 @@ type CreateFollowParams struct {
 }
 
 func (q *Queries) CreateFollow(ctx context.Context, arg CreateFollowParams) (Follow, error) {
-	row := q.db.QueryRow(ctx, createFollow, arg.FollowerID, arg.FollowingID)
+	row := q.db.QueryRowContext(ctx, createFollow, arg.FollowerID, arg.FollowingID)
 	var i Follow
 	err := row.Scan(&i.FollowerID, &i.FollowingID, &i.CreatedAt)
 	return i, err
@@ -39,7 +39,7 @@ type DeleteFollowParams struct {
 }
 
 func (q *Queries) DeleteFollow(ctx context.Context, arg DeleteFollowParams) error {
-	_, err := q.db.Exec(ctx, deleteFollow, arg.FollowerID, arg.FollowingID)
+	_, err := q.db.ExecContext(ctx, deleteFollow, arg.FollowerID, arg.FollowingID)
 	return err
 }
 
@@ -54,7 +54,7 @@ type GetFollowersParams struct {
 }
 
 func (q *Queries) GetFollowers(ctx context.Context, arg GetFollowersParams) ([]Follow, error) {
-	rows, err := q.db.Query(ctx, getFollowers, arg.FollowingID, arg.Limit, arg.Offset)
+	rows, err := q.db.QueryContext(ctx, getFollowers, arg.FollowingID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -66,6 +66,9 @@ func (q *Queries) GetFollowers(ctx context.Context, arg GetFollowersParams) ([]F
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -84,7 +87,7 @@ type GetFollowingParams struct {
 }
 
 func (q *Queries) GetFollowing(ctx context.Context, arg GetFollowingParams) ([]Follow, error) {
-	rows, err := q.db.Query(ctx, getFollowing, arg.FollowerID, arg.Limit, arg.Offset)
+	rows, err := q.db.QueryContext(ctx, getFollowing, arg.FollowerID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -96,6 +99,9 @@ func (q *Queries) GetFollowing(ctx context.Context, arg GetFollowingParams) ([]F
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

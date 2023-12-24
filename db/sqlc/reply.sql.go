@@ -7,8 +7,7 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
+	"database/sql"
 )
 
 const createReply = `-- name: CreateReply :one
@@ -20,14 +19,14 @@ INSERT INTO replies (
 `
 
 type CreateReplyParams struct {
-	TweetID   int64              `json:"tweet_id"`
-	UserID    int64              `json:"user_id"`
-	Content   string             `json:"content"`
-	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	TweetID   int64        `json:"tweet_id"`
+	UserID    int64        `json:"user_id"`
+	Content   string       `json:"content"`
+	UpdatedAt sql.NullTime `json:"updated_at"`
 }
 
 func (q *Queries) CreateReply(ctx context.Context, arg CreateReplyParams) (Reply, error) {
-	row := q.db.QueryRow(ctx, createReply,
+	row := q.db.QueryRowContext(ctx, createReply,
 		arg.TweetID,
 		arg.UserID,
 		arg.Content,
@@ -50,7 +49,7 @@ DELETE FROM replies WHERE id = $1
 `
 
 func (q *Queries) DeleteReply(ctx context.Context, id int64) error {
-	_, err := q.db.Exec(ctx, deleteReply, id)
+	_, err := q.db.ExecContext(ctx, deleteReply, id)
 	return err
 }
 
@@ -65,7 +64,7 @@ type GetRepliesByTweetIDParams struct {
 }
 
 func (q *Queries) GetRepliesByTweetID(ctx context.Context, arg GetRepliesByTweetIDParams) ([]Reply, error) {
-	rows, err := q.db.Query(ctx, getRepliesByTweetID, arg.TweetID, arg.Limit, arg.Offset)
+	rows, err := q.db.QueryContext(ctx, getRepliesByTweetID, arg.TweetID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -85,6 +84,9 @@ func (q *Queries) GetRepliesByTweetID(ctx context.Context, arg GetRepliesByTweet
 		}
 		items = append(items, i)
 	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -100,13 +102,13 @@ RETURNING id, tweet_id, user_id, content, created_at, updated_at
 `
 
 type UpdateReplyParams struct {
-	ID        int64              `json:"id"`
-	Content   string             `json:"content"`
-	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	ID        int64        `json:"id"`
+	Content   string       `json:"content"`
+	UpdatedAt sql.NullTime `json:"updated_at"`
 }
 
 func (q *Queries) UpdateReply(ctx context.Context, arg UpdateReplyParams) (Reply, error) {
-	row := q.db.QueryRow(ctx, updateReply, arg.ID, arg.Content, arg.UpdatedAt)
+	row := q.db.QueryRowContext(ctx, updateReply, arg.ID, arg.Content, arg.UpdatedAt)
 	var i Reply
 	err := row.Scan(
 		&i.ID,

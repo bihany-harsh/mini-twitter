@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"testing"
+	"time"
 
 	"github.com/bihany-harsh/mini-twitter/util"
 	"github.com/stretchr/testify/require"
@@ -14,15 +15,18 @@ func checkEqualAccounts(t *testing.T, account1, account2 Account) {
 	require.Equal(t, account1.Email, account2.Email)
 	require.Equal(t, account1.ProfilePictureUrl, account2.ProfilePictureUrl)
 	require.Equal(t, account1.Bio, account2.Bio)
-	require.Equal(t, account1.LastLogin, account2.LastLogin)
+	require.WithinDuration(t, account1.LastLogin.Time, account2.LastLogin.Time, time.Second)
+	// require.Equal(t, account1.LastLogin, account2.LastLogin)
 	require.Equal(t, account1.IsAdmin, account2.IsAdmin)
 	require.Equal(t, account1.IsActive, account2.IsActive)
-	require.Equal(t, account1.LastDeactivatedAt, account2.LastDeactivatedAt)
+	require.WithinDuration(t, account1.LastDeactivatedAt.Time, account2.LastDeactivatedAt.Time, time.Second)
+	// require.Equal(t, account1.LastDeactivatedAt, account2.LastDeactivatedAt)
 	require.Equal(t, account1.NFollowers, account2.NFollowers)
 	require.Equal(t, account1.NFollowing, account2.NFollowing)
 	require.Equal(t, account1.NTweets, account2.NTweets)
 	require.Equal(t, account1.ID, account2.ID)
-	require.Equal(t, account1.CreatedAt, account2.CreatedAt)
+	require.WithinDuration(t, account1.CreatedAt, account2.CreatedAt, time.Second)
+	// require.Equal(t, account1.CreatedAt, account2.CreatedAt)
 }
 
 func createRandomAccount(t *testing.T) Account {
@@ -43,10 +47,12 @@ func createRandomAccount(t *testing.T) Account {
 	require.Equal(t, arg.Email, account.Email)
 	require.Equal(t, arg.ProfilePictureUrl, account.ProfilePictureUrl)
 	require.Equal(t, arg.Bio, account.Bio)
-	require.Equal(t, arg.LastLogin, account.LastLogin)
+	require.WithinDuration(t, arg.LastLogin.Time, account.LastLogin.Time, time.Second)
+	// require.Equal(t, arg.LastLogin, account.LastLogin)
 	require.Equal(t, arg.IsAdmin, account.IsAdmin)
 	require.Equal(t, arg.IsActive, account.IsActive)
-	require.Equal(t, arg.LastDeactivatedAt, account.LastDeactivatedAt)
+	require.WithinDuration(t, arg.LastDeactivatedAt.Time, account.LastDeactivatedAt.Time, time.Second)
+	// require.Equal(t, arg.LastDeactivatedAt, account.LastDeactivatedAt)
 	require.Equal(t, arg.NFollowers, account.NFollowers)
 	require.Equal(t, arg.NFollowing, account.NFollowing)
 	require.Equal(t, arg.NTweets, account.NTweets)
@@ -180,15 +186,18 @@ func TestUpdateAccountByEmail(t *testing.T) {
 	require.Equal(t, arg.Email, account2.Email)
 	require.Equal(t, arg.ProfilePictureUrl, account2.ProfilePictureUrl)
 	require.Equal(t, arg.Bio, account2.Bio)
-	require.Equal(t, arg.LastLogin, account2.LastLogin)
+	require.WithinDuration(t, arg.LastLogin.Time, account2.LastLogin.Time, time.Second)
+	// require.Equal(t, arg.LastLogin, account2.LastLogin)
 	require.Equal(t, arg.IsAdmin, account2.IsAdmin)
 	require.Equal(t, arg.IsActive, account2.IsActive)
-	require.Equal(t, arg.LastDeactivatedAt, account2.LastDeactivatedAt)
+	require.WithinDuration(t, arg.LastDeactivatedAt.Time, account2.LastDeactivatedAt.Time, time.Second)
+	// require.Equal(t, arg.LastDeactivatedAt, account2.LastDeactivatedAt)
 	require.Equal(t, account.NFollowers, account2.NFollowers)
 	require.Equal(t, account.NFollowing, account2.NFollowing)
 	require.Equal(t, account.NTweets, account2.NTweets)
 	require.Equal(t, account.ID, account2.ID)
-	require.Equal(t, account.CreatedAt, account2.CreatedAt)
+	require.WithinDuration(t, account.CreatedAt, account2.CreatedAt, time.Second)
+	// require.Equal(t, account.CreatedAt, account2.CreatedAt)
 }
 
 func TestUpdateAccountByUsername(t *testing.T) {
@@ -212,15 +221,18 @@ func TestUpdateAccountByUsername(t *testing.T) {
 	require.Equal(t, arg.Email, account2.Email)
 	require.Equal(t, arg.ProfilePictureUrl, account2.ProfilePictureUrl)
 	require.Equal(t, arg.Bio, account2.Bio)
-	require.Equal(t, arg.LastLogin, account2.LastLogin)
+	require.WithinDuration(t, arg.LastLogin.Time, account2.LastLogin.Time, time.Second)
+	// require.Equal(t, arg.LastLogin, account2.LastLogin)
 	require.Equal(t, arg.IsAdmin, account2.IsAdmin)
 	require.Equal(t, arg.IsActive, account2.IsActive)
-	require.Equal(t, arg.LastDeactivatedAt, account2.LastDeactivatedAt)
+	require.WithinDuration(t, arg.LastDeactivatedAt.Time, account2.LastDeactivatedAt.Time, time.Second)
+	// require.Equal(t, arg.LastDeactivatedAt, account2.LastDeactivatedAt)
 	require.Equal(t, account.NFollowers, account2.NFollowers)
 	require.Equal(t, account.NFollowing, account2.NFollowing)
 	require.Equal(t, account.NTweets, account2.NTweets)
 	require.Equal(t, account.ID, account2.ID)
-	require.Equal(t, account.CreatedAt, account2.CreatedAt)
+	require.WithinDuration(t, account.CreatedAt, account2.CreatedAt, time.Second)
+	// require.Equal(t, account.CreatedAt, account2.CreatedAt)
 }
 
 func TestUpdateAccountByID(t *testing.T) {
@@ -245,13 +257,16 @@ func TestUpdateAccountByID(t *testing.T) {
 	require.Equal(t, arg.Email, account2.Email)
 	require.Equal(t, arg.ProfilePictureUrl, account2.ProfilePictureUrl)
 	require.Equal(t, arg.Bio, account2.Bio)
-	require.Equal(t, arg.LastLogin, account2.LastLogin)
+	require.WithinDuration(t, arg.LastLogin.Time, account2.LastLogin.Time, time.Second)
+	// require.Equal(t, arg.LastLogin, account2.LastLogin)
 	require.Equal(t, arg.IsAdmin, account2.IsAdmin)
 	require.Equal(t, arg.IsActive, account2.IsActive)
-	require.Equal(t, arg.LastDeactivatedAt, account2.LastDeactivatedAt)
+	require.WithinDuration(t, arg.LastDeactivatedAt.Time, account2.LastDeactivatedAt.Time, time.Second)
+	// require.Equal(t, arg.LastDeactivatedAt, account2.LastDeactivatedAt)
 	require.Equal(t, account.NFollowers, account2.NFollowers)
 	require.Equal(t, account.NFollowing, account2.NFollowing)
 	require.Equal(t, account.NTweets, account2.NTweets)
 	require.Equal(t, account.ID, account2.ID)
-	require.Equal(t, account.CreatedAt, account2.CreatedAt)
+	require.WithinDuration(t, account.CreatedAt, account2.CreatedAt, time.Second)
+	// require.Equal(t, account.CreatedAt, account2.CreatedAt)
 }

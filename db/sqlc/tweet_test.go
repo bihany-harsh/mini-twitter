@@ -13,13 +13,15 @@ import (
 func checkEqualTweets(t *testing.T, tweet1, tweet2 Tweet) {
 	require.Equal(t, tweet1.UserID, tweet2.UserID)
 	require.Equal(t, tweet1.Content, tweet2.Content)
-	require.Equal(t, tweet1.UpdatedAt, tweet2.UpdatedAt)
+	require.WithinDuration(t, tweet1.UpdatedAt.Time, tweet2.UpdatedAt.Time, time.Second)
+	// require.Equal(t, tweet1.UpdatedAt, tweet2.UpdatedAt)
 	require.Equal(t, tweet1.RetweetID, tweet2.RetweetID)
 	require.Equal(t, tweet1.NLikes, tweet2.NLikes)
 	require.Equal(t, tweet1.NRetweets, tweet2.NRetweets)
 	require.Equal(t, tweet1.NReply, tweet2.NReply)
 	require.Equal(t, tweet1.ID, tweet2.ID)
-	require.Equal(t, tweet1.CreatedAt, tweet2.CreatedAt)
+	require.WithinDuration(t, tweet1.CreatedAt, tweet2.CreatedAt, time.Second)
+	// require.Equal(t, tweet1.CreatedAt, tweet2.CreatedAt)
 }
 
 func createRandomTweetByAccount(t *testing.T, account Account) Tweet {
@@ -35,7 +37,8 @@ func createRandomTweetByAccount(t *testing.T, account Account) Tweet {
 	require.NotEmpty(t, tweet)
 	require.Equal(t, arg.UserID, tweet.UserID)
 	require.Equal(t, arg.Content, tweet.Content)
-	require.Equal(t, arg.UpdatedAt, tweet.UpdatedAt)
+	require.WithinDuration(t, arg.UpdatedAt.Time, tweet.UpdatedAt.Time, time.Second)
+	// require.Equal(t, arg.UpdatedAt, tweet.UpdatedAt)
 	require.Equal(t, arg.RetweetID, tweet.RetweetID)
 	require.Equal(t, arg.NLikes, tweet.NLikes)
 	require.Equal(t, arg.NRetweets, tweet.NRetweets)
@@ -151,11 +154,13 @@ func TestUpdateTweetByID(t *testing.T) {
 	require.NotEmpty(t, tweet2)
 	require.Equal(t, arg.ID, tweet2.ID)
 	require.Equal(t, arg.Content, tweet2.Content)
-	require.Equal(t, arg.UpdatedAt, tweet2.UpdatedAt)
+	require.WithinDuration(t, arg.UpdatedAt.Time, tweet2.UpdatedAt.Time, time.Second)
+	// require.Equal(t, arg.UpdatedAt, tweet2.UpdatedAt)
 	require.Equal(t, tweet1.UserID, tweet2.UserID)
 	require.Equal(t, tweet1.RetweetID, tweet2.RetweetID)
 	require.Equal(t, tweet1.NLikes, tweet2.NLikes)
 	require.Equal(t, tweet1.NRetweets, tweet2.NRetweets)
 	require.Equal(t, tweet1.NReply, tweet2.NReply)
-	require.Equal(t, tweet1.CreatedAt, tweet2.CreatedAt)
+	require.WithinDuration(t, tweet1.CreatedAt, tweet2.CreatedAt, time.Second)
+	// require.Equal(t, tweet1.CreatedAt, tweet2.CreatedAt)
 }

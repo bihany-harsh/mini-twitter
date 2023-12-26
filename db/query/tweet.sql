@@ -25,6 +25,27 @@ UPDATE tweets SET
 WHERE id = $1
 RETURNING *;
 
+-- name: SetRetweetID :one
+UPDATE tweets SET retweet_id = $2 WHERE id = $1 RETURNING *;
+
+-- name: AddNRetweetsByOne :one
+UPDATE tweets SET n_retweets = n_retweets + 1 WHERE id = $1 RETURNING *;
+
+-- name: SubtractNRetweetsByOne :one
+UPDATE tweets SET n_retweets = n_retweets - 1 WHERE id = $1 RETURNING *;
+
+-- name: AddNReplyByOne :one
+UPDATE tweets SET n_reply = n_reply + 1 WHERE id = $1 RETURNING *;
+
+-- name: SubtractNReplyByOne :one
+UPDATE tweets SET n_reply = n_reply - 1 WHERE id = $1 RETURNING *;
+
+-- name: AddNLikesByOne :one
+UPDATE tweets SET n_likes = n_likes + 1 WHERE id = $1 RETURNING *;
+
+-- name: SubtractNLikesByOne :one
+UPDATE tweets SET n_likes = n_likes - 1 WHERE id = $1 RETURNING *;
+
 -- name: DeleteTweetByID :exec
 DELETE FROM tweets WHERE id = $1;
 

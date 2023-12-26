@@ -10,6 +10,72 @@ import (
 	"database/sql"
 )
 
+const addNLikesByOne = `-- name: AddNLikesByOne :one
+UPDATE tweets SET n_likes = n_likes + 1 WHERE id = $1 RETURNING id, user_id, content, created_at, updated_at, is_deleted, retweet_id, n_likes, n_retweets, n_reply
+`
+
+func (q *Queries) AddNLikesByOne(ctx context.Context, id int64) (Tweet, error) {
+	row := q.db.QueryRowContext(ctx, addNLikesByOne, id)
+	var i Tweet
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Content,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.IsDeleted,
+		&i.RetweetID,
+		&i.NLikes,
+		&i.NRetweets,
+		&i.NReply,
+	)
+	return i, err
+}
+
+const addNReplyByOne = `-- name: AddNReplyByOne :one
+UPDATE tweets SET n_reply = n_reply + 1 WHERE id = $1 RETURNING id, user_id, content, created_at, updated_at, is_deleted, retweet_id, n_likes, n_retweets, n_reply
+`
+
+func (q *Queries) AddNReplyByOne(ctx context.Context, id int64) (Tweet, error) {
+	row := q.db.QueryRowContext(ctx, addNReplyByOne, id)
+	var i Tweet
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Content,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.IsDeleted,
+		&i.RetweetID,
+		&i.NLikes,
+		&i.NRetweets,
+		&i.NReply,
+	)
+	return i, err
+}
+
+const addNRetweetsByOne = `-- name: AddNRetweetsByOne :one
+UPDATE tweets SET n_retweets = n_retweets + 1 WHERE id = $1 RETURNING id, user_id, content, created_at, updated_at, is_deleted, retweet_id, n_likes, n_retweets, n_reply
+`
+
+func (q *Queries) AddNRetweetsByOne(ctx context.Context, id int64) (Tweet, error) {
+	row := q.db.QueryRowContext(ctx, addNRetweetsByOne, id)
+	var i Tweet
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Content,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.IsDeleted,
+		&i.RetweetID,
+		&i.NLikes,
+		&i.NRetweets,
+		&i.NReply,
+	)
+	return i, err
+}
+
 const createTweet = `-- name: CreateTweet :one
 INSERT INTO tweets (
     user_id, content, updated_at, retweet_id, n_likes, n_retweets, n_reply
@@ -179,6 +245,99 @@ func (q *Queries) ListTweets(ctx context.Context, arg ListTweetsParams) ([]Tweet
 		return nil, err
 	}
 	return items, nil
+}
+
+const setRetweetID = `-- name: SetRetweetID :one
+UPDATE tweets SET retweet_id = $2 WHERE id = $1 RETURNING id, user_id, content, created_at, updated_at, is_deleted, retweet_id, n_likes, n_retweets, n_reply
+`
+
+type SetRetweetIDParams struct {
+	ID        int64         `json:"id"`
+	RetweetID sql.NullInt64 `json:"retweet_id"`
+}
+
+func (q *Queries) SetRetweetID(ctx context.Context, arg SetRetweetIDParams) (Tweet, error) {
+	row := q.db.QueryRowContext(ctx, setRetweetID, arg.ID, arg.RetweetID)
+	var i Tweet
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Content,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.IsDeleted,
+		&i.RetweetID,
+		&i.NLikes,
+		&i.NRetweets,
+		&i.NReply,
+	)
+	return i, err
+}
+
+const subtractNLikesByOne = `-- name: SubtractNLikesByOne :one
+UPDATE tweets SET n_likes = n_likes - 1 WHERE id = $1 RETURNING id, user_id, content, created_at, updated_at, is_deleted, retweet_id, n_likes, n_retweets, n_reply
+`
+
+func (q *Queries) SubtractNLikesByOne(ctx context.Context, id int64) (Tweet, error) {
+	row := q.db.QueryRowContext(ctx, subtractNLikesByOne, id)
+	var i Tweet
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Content,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.IsDeleted,
+		&i.RetweetID,
+		&i.NLikes,
+		&i.NRetweets,
+		&i.NReply,
+	)
+	return i, err
+}
+
+const subtractNReplyByOne = `-- name: SubtractNReplyByOne :one
+UPDATE tweets SET n_reply = n_reply - 1 WHERE id = $1 RETURNING id, user_id, content, created_at, updated_at, is_deleted, retweet_id, n_likes, n_retweets, n_reply
+`
+
+func (q *Queries) SubtractNReplyByOne(ctx context.Context, id int64) (Tweet, error) {
+	row := q.db.QueryRowContext(ctx, subtractNReplyByOne, id)
+	var i Tweet
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Content,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.IsDeleted,
+		&i.RetweetID,
+		&i.NLikes,
+		&i.NRetweets,
+		&i.NReply,
+	)
+	return i, err
+}
+
+const subtractNRetweetsByOne = `-- name: SubtractNRetweetsByOne :one
+UPDATE tweets SET n_retweets = n_retweets - 1 WHERE id = $1 RETURNING id, user_id, content, created_at, updated_at, is_deleted, retweet_id, n_likes, n_retweets, n_reply
+`
+
+func (q *Queries) SubtractNRetweetsByOne(ctx context.Context, id int64) (Tweet, error) {
+	row := q.db.QueryRowContext(ctx, subtractNRetweetsByOne, id)
+	var i Tweet
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Content,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.IsDeleted,
+		&i.RetweetID,
+		&i.NLikes,
+		&i.NRetweets,
+		&i.NReply,
+	)
+	return i, err
 }
 
 const updateTweetByID = `-- name: UpdateTweetByID :one

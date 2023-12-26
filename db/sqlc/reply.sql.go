@@ -93,6 +93,64 @@ func (q *Queries) GetRepliesByTweetID(ctx context.Context, arg GetRepliesByTweet
 	return items, nil
 }
 
+const getRepliesByUserID = `-- name: GetRepliesByUserID :many
+SELECT id, tweet_id, user_id, content, created_at, updated_at FROM replies WHERE user_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3
+`
+
+type GetRepliesByUserIDParams struct {
+	UserID int64 `json:"user_id"`
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+func (q *Queries) GetRepliesByUserID(ctx context.Context, arg GetRepliesByUserIDParams) ([]Reply, error) {
+	rows, err := q.db.QueryContext(ctx, getRepliesByUserID, arg.UserID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Reply
+	for rows.Next() {
+		var i Reply
+		if err := rows.Scan(
+			&i.ID,
+			&i.TweetID,
+			&i.UserID,
+			&i.Content,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getReply = `-- name: GetReply :one
+SELECT id, tweet_id, user_id, content, created_at, updated_at FROM replies WHERE id = $1
+`
+
+func (q *Queries) GetReply(ctx context.Context, id int64) (Reply, error) {
+	row := q.db.QueryRowContext(ctx, getReply, id)
+	var i Reply
+	err := row.Scan(
+		&i.ID,
+		&i.TweetID,
+		&i.UserID,
+		&i.Content,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const updateReply = `-- name: UpdateReply :one
 UPDATE replies SET
     content = $2,

@@ -5,6 +5,9 @@ INSERT INTO likes (
     $1, $2
 ) RETURNING *;
 
+-- name: GetLike :one
+SELECT * FROM likes WHERE user_id = $1 AND tweet_id = $2;
+
 -- name: GetLikesByUserID :many
 SELECT * FROM likes WHERE user_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3;
 

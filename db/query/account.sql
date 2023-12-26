@@ -30,6 +30,27 @@ SELECT * FROM accounts WHERE username = $1 OR email = $2;
 -- name: ListAccounts :many
 SELECT * FROM accounts ORDER BY id LIMIT $1 OFFSET $2;
 
+-- name: AddNFollowersByOne :one
+UPDATE accounts SET n_followers = n_followers + 1 WHERE id = $1 RETURNING *;
+
+-- name: AddNFollowingByOne :one
+UPDATE accounts SET n_following = n_following + 1 WHERE id = $1 RETURNING *;
+
+-- name: AddNTweetsByOne :one
+UPDATE accounts SET n_tweets = n_tweets + 1 WHERE id = $1 RETURNING *;
+
+-- name: SubtractNFollowersByOne :one
+UPDATE accounts SET n_followers = n_followers - 1 WHERE id = $1 RETURNING *;
+
+-- name: SubtractNFollowingByOne :one
+UPDATE accounts SET n_following = n_following - 1 WHERE id = $1 RETURNING *;
+
+-- name: SubtractNTweetsByOne :one
+UPDATE accounts SET n_tweets = n_tweets - 1 WHERE id = $1 RETURNING *;
+
+-- name: SubtractAllNTweets :one
+UPDATE accounts SET n_tweets = 0 WHERE id = $1 RETURNING *;
+
 -- name: UpdateAccountByID :one
 UPDATE accounts SET
     username = $2,

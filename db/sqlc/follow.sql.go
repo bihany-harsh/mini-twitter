@@ -43,6 +43,22 @@ func (q *Queries) DeleteFollow(ctx context.Context, arg DeleteFollowParams) erro
 	return err
 }
 
+const getFollow = `-- name: GetFollow :one
+SELECT follower_id, following_id, created_at FROM follows WHERE follower_id = $1 AND following_id = $2
+`
+
+type GetFollowParams struct {
+	FollowerID  int64 `json:"follower_id"`
+	FollowingID int64 `json:"following_id"`
+}
+
+func (q *Queries) GetFollow(ctx context.Context, arg GetFollowParams) (Follow, error) {
+	row := q.db.QueryRowContext(ctx, getFollow, arg.FollowerID, arg.FollowingID)
+	var i Follow
+	err := row.Scan(&i.FollowerID, &i.FollowingID, &i.CreatedAt)
+	return i, err
+}
+
 const getFollowers = `-- name: GetFollowers :many
 SELECT follower_id, following_id, created_at FROM follows WHERE following_id = $1 ORDER BY follower_id LIMIT $2 OFFSET $3
 `

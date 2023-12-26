@@ -10,6 +10,81 @@ import (
 	"database/sql"
 )
 
+const addNFollowersByOne = `-- name: AddNFollowersByOne :one
+UPDATE accounts SET n_followers = n_followers + 1 WHERE id = $1 RETURNING id, username, email, profile_picture_url, bio, last_login, created_at, is_admin, is_active, last_deactivated_at, n_followers, n_following, n_tweets
+`
+
+func (q *Queries) AddNFollowersByOne(ctx context.Context, id int64) (Account, error) {
+	row := q.db.QueryRowContext(ctx, addNFollowersByOne, id)
+	var i Account
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.ProfilePictureUrl,
+		&i.Bio,
+		&i.LastLogin,
+		&i.CreatedAt,
+		&i.IsAdmin,
+		&i.IsActive,
+		&i.LastDeactivatedAt,
+		&i.NFollowers,
+		&i.NFollowing,
+		&i.NTweets,
+	)
+	return i, err
+}
+
+const addNFollowingByOne = `-- name: AddNFollowingByOne :one
+UPDATE accounts SET n_following = n_following + 1 WHERE id = $1 RETURNING id, username, email, profile_picture_url, bio, last_login, created_at, is_admin, is_active, last_deactivated_at, n_followers, n_following, n_tweets
+`
+
+func (q *Queries) AddNFollowingByOne(ctx context.Context, id int64) (Account, error) {
+	row := q.db.QueryRowContext(ctx, addNFollowingByOne, id)
+	var i Account
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.ProfilePictureUrl,
+		&i.Bio,
+		&i.LastLogin,
+		&i.CreatedAt,
+		&i.IsAdmin,
+		&i.IsActive,
+		&i.LastDeactivatedAt,
+		&i.NFollowers,
+		&i.NFollowing,
+		&i.NTweets,
+	)
+	return i, err
+}
+
+const addNTweetsByOne = `-- name: AddNTweetsByOne :one
+UPDATE accounts SET n_tweets = n_tweets + 1 WHERE id = $1 RETURNING id, username, email, profile_picture_url, bio, last_login, created_at, is_admin, is_active, last_deactivated_at, n_followers, n_following, n_tweets
+`
+
+func (q *Queries) AddNTweetsByOne(ctx context.Context, id int64) (Account, error) {
+	row := q.db.QueryRowContext(ctx, addNTweetsByOne, id)
+	var i Account
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.ProfilePictureUrl,
+		&i.Bio,
+		&i.LastLogin,
+		&i.CreatedAt,
+		&i.IsAdmin,
+		&i.IsActive,
+		&i.LastDeactivatedAt,
+		&i.NFollowers,
+		&i.NFollowing,
+		&i.NTweets,
+	)
+	return i, err
+}
+
 const createAccount = `-- name: CreateAccount :one
 INSERT INTO accounts (
     username,
@@ -251,6 +326,106 @@ func (q *Queries) ListAccounts(ctx context.Context, arg ListAccountsParams) ([]A
 		return nil, err
 	}
 	return items, nil
+}
+
+const subtractAllNTweets = `-- name: SubtractAllNTweets :one
+UPDATE accounts SET n_tweets = 0 WHERE id = $1 RETURNING id, username, email, profile_picture_url, bio, last_login, created_at, is_admin, is_active, last_deactivated_at, n_followers, n_following, n_tweets
+`
+
+func (q *Queries) SubtractAllNTweets(ctx context.Context, id int64) (Account, error) {
+	row := q.db.QueryRowContext(ctx, subtractAllNTweets, id)
+	var i Account
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.ProfilePictureUrl,
+		&i.Bio,
+		&i.LastLogin,
+		&i.CreatedAt,
+		&i.IsAdmin,
+		&i.IsActive,
+		&i.LastDeactivatedAt,
+		&i.NFollowers,
+		&i.NFollowing,
+		&i.NTweets,
+	)
+	return i, err
+}
+
+const subtractNFollowersByOne = `-- name: SubtractNFollowersByOne :one
+UPDATE accounts SET n_followers = n_followers - 1 WHERE id = $1 RETURNING id, username, email, profile_picture_url, bio, last_login, created_at, is_admin, is_active, last_deactivated_at, n_followers, n_following, n_tweets
+`
+
+func (q *Queries) SubtractNFollowersByOne(ctx context.Context, id int64) (Account, error) {
+	row := q.db.QueryRowContext(ctx, subtractNFollowersByOne, id)
+	var i Account
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.ProfilePictureUrl,
+		&i.Bio,
+		&i.LastLogin,
+		&i.CreatedAt,
+		&i.IsAdmin,
+		&i.IsActive,
+		&i.LastDeactivatedAt,
+		&i.NFollowers,
+		&i.NFollowing,
+		&i.NTweets,
+	)
+	return i, err
+}
+
+const subtractNFollowingByOne = `-- name: SubtractNFollowingByOne :one
+UPDATE accounts SET n_following = n_following - 1 WHERE id = $1 RETURNING id, username, email, profile_picture_url, bio, last_login, created_at, is_admin, is_active, last_deactivated_at, n_followers, n_following, n_tweets
+`
+
+func (q *Queries) SubtractNFollowingByOne(ctx context.Context, id int64) (Account, error) {
+	row := q.db.QueryRowContext(ctx, subtractNFollowingByOne, id)
+	var i Account
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.ProfilePictureUrl,
+		&i.Bio,
+		&i.LastLogin,
+		&i.CreatedAt,
+		&i.IsAdmin,
+		&i.IsActive,
+		&i.LastDeactivatedAt,
+		&i.NFollowers,
+		&i.NFollowing,
+		&i.NTweets,
+	)
+	return i, err
+}
+
+const subtractNTweetsByOne = `-- name: SubtractNTweetsByOne :one
+UPDATE accounts SET n_tweets = n_tweets - 1 WHERE id = $1 RETURNING id, username, email, profile_picture_url, bio, last_login, created_at, is_admin, is_active, last_deactivated_at, n_followers, n_following, n_tweets
+`
+
+func (q *Queries) SubtractNTweetsByOne(ctx context.Context, id int64) (Account, error) {
+	row := q.db.QueryRowContext(ctx, subtractNTweetsByOne, id)
+	var i Account
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.ProfilePictureUrl,
+		&i.Bio,
+		&i.LastLogin,
+		&i.CreatedAt,
+		&i.IsAdmin,
+		&i.IsActive,
+		&i.LastDeactivatedAt,
+		&i.NFollowers,
+		&i.NFollowing,
+		&i.NTweets,
+	)
+	return i, err
 }
 
 const updateAccountByEmail = `-- name: UpdateAccountByEmail :one
